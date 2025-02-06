@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
-
+// ARRAY_SIZE = MEMORY_OFFSET * BENCH_ITER
 #define ARRAY_SIZE 100000000   //Array size has to exceed L2 size to avoid L2 cache residence
 #define MEMORY_OFFSET 10000000
 #define BENCH_ITER 10
@@ -75,7 +75,7 @@ int main(){
 	cudaMemcpy(A_g, A, ARRAY_SIZE*sizeof(float), cudaMemcpyHostToDevice);
 	cudaMemcpy(B_g, B, ARRAY_SIZE*sizeof(float), cudaMemcpyHostToDevice);
   
-	int BlockNums = MEMORY_OFFSET / 256;
+	int BlockNums = MEMORY_OFFSET / THREADS_NUM;
     //warm up to occupy L2 cache
 	printf("warm up start\n");
 	mem_bw<<<BlockNums / 4, THREADS_NUM>>>(A_g, B_g, C_g);

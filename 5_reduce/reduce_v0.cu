@@ -14,7 +14,7 @@ __global__ void reduce_v0(float *d_in,float *d_out){
     int gtid = blockIdx.x * blockSize + threadIdx.x;
     // load: 每个线程加载一个元素到shared mem对应位置
     smem[tid] = d_in[gtid];
-    // 涉及到对shared memory的读写最好都加上__syncthreads
+    // 涉及到对shared memory的读写最好都加上__syncthreads : 保证读写顺序一致
     __syncthreads();
 
     // 每个线程在shared memory上跨index加另一个元素，直到跨度>线程数量
@@ -32,6 +32,8 @@ __global__ void reduce_v0(float *d_in,float *d_out){
 
     // store: 哪里来回哪里去，把reduce结果写回显存
     if (tid == 0) {
+        // print the address of smem[0]
+        // printf("smem[0] address: %p\n", &smem[0]);
         d_out[blockIdx.x] = smem[0];
     }
 }
@@ -53,7 +55,8 @@ int main(){
     cudaDeviceProp deviceProp;
     cudaGetDeviceProperties(&deviceProp, 0);
     const int blockSize = 256;
-    int GridSize = std::min((N + 256 - 1) / 256, deviceProp.maxGridSize[0]);
+    int GridSize = std::min((N + 256 - 1) / 256, deviceProp.maxGridSize[0]); // for this code, (N + 256 - 1) / 256 should be less than maxGridSize[0] for poor robustness
+    printf("blockSize = %d, GridSize = %d\n", blockSize, GridSize);
     //int GridSize = 100000;
     float *a = (float *)malloc(N * sizeof(float));
     float *d_a;

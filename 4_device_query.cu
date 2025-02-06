@@ -22,7 +22,7 @@ int main() {
     // 显存容量
     printf("  Total amount of global memory:                 %.0f MBytes "
              "(%llu bytes)\n",
-             static_cast<float>(deviceProp.totalGlobalMem / 1048576.0f),
+             static_cast<float>(deviceProp.totalGlobalMem / 1048576.0f), // 1048576 = 1024*1024
              (unsigned long long)deviceProp.totalGlobalMem);
     // 时钟频率
     printf( "  GPU Max Clock rate:                            %.0f MHz (%0.2f "
