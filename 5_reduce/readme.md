@@ -29,3 +29,28 @@ smem bank conflict
 ## V3
 
 原来是256个数的求和用256个线程来，现在用128个来，直接在load到smem的时候就执行一次相加；原因就是原来的方案后128个用了一次之后就没用了，不如不用
+
+## V4
+
+最后32个线程是在一个wrap里的，没必要执行6次__syncthreads() ，可以在warp里面将6次操作展开，使用__syncwarp() 同步，开销更小
+
+## V5
+
+循环展开
+
+```cuda
+  if (blockSize >= 512) {
+    if (threadIdx.x < 256) {
+      smem[threadIdx.x] += smem[threadIdx.x + 256];
+    }
+    __syncthreads();
+  }
+```
+
+## V6
+
+其实就是之前直接算出需要多少个threads，现在是使用for循环来决定每个线程在刚开始时需要加载多少个global mem的值相加放到smem
+
+但V6反而比V5更慢，经过排查，发现：blockSize用128会比256快将近一倍，可能是用128，线程的利用率更高一些
+
+而且用for循环会比直接算好将几个gmem数相加 更快一些，不过前者更通用

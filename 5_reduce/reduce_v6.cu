@@ -59,6 +59,7 @@ __global__ void reduce_v6(float *d_in, float *d_out, int nums){
         sum += d_in[i];
     }
     smem[tid] = sum;
+    // smem[tid] = d_in[gtid];
     __syncthreads();
     // compute: reduce in shared mem
     BlockSharedMemReduce<blockSize>(smem);
@@ -104,19 +105,19 @@ int main(){
     cudaMemcpy(d_a, a, N * sizeof(float), cudaMemcpyHostToDevice);
 
     dim3 Grid(gridSize);
-    dim3 Block(blockSize);
+    dim3 Block(blockSize/2);
     
 
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
     cudaEventRecord(start);
-    reduce_v6<blockSize><<<Grid, Block>>>(d_a, part_out, N);
-    reduce_v6<blockSize><<<1, Block>>>(part_out, d_out, gridSize);
+    reduce_v6<blockSize/2><<<Grid, Block>>>(d_a, part_out, N);
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&milliseconds, start, stop);
-
+    reduce_v6<blockSize><<<1, Block>>>(part_out, d_out, gridSize);
+    
     cudaMemcpy(out, d_out, 1 * sizeof(float), cudaMemcpyDeviceToHost);
     bool is_right = CheckResult(out, groudtruth, 1);
     if(is_right) {
