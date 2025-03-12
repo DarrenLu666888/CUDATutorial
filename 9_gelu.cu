@@ -118,7 +118,7 @@ int main() {
     cudaMalloc((void **)&d_x, n * sizeof(__half));
     cudaMalloc((void **)&d_y, n * sizeof(__half));
     cudaMemcpy(d_x, x, sizeof(__half) * n, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_y, y, sizeof(__half) * n, cudaMemcpyHostToDevice);
+    // cudaMemcpy(d_y, y, sizeof(__half) * n, cudaMemcpyHostToDevice);
 
     cudaDeviceProp deviceProp;
     cudaGetDeviceProperties(&deviceProp, 0);
@@ -131,7 +131,7 @@ int main() {
     // Note: when you have ampere GPU, you can enable the 134-136 line to get performance improvement by half2 intrinsic.
     if (n % 8 == 0 && is_aligned(x, kAlignment) && is_aligned(y, kAlignment)) {                                          
       int thread = std::min<int>(512, deviceProp.maxThreadsPerBlock); 
-      //int block = (n / 8 + thread - 1) / thread;                  
+      //int block = (n / 8 + thread - 1) / thread;
       //block = std::min<int>(block, deviceProp.maxGridSize[0]);                                  
       //FP16GeluCUDAKernel<8><<<block, thread>>>(d_x, d_y, n);  
       int block = (n + thread - 1) / thread;                  

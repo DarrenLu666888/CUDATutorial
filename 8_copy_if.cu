@@ -29,7 +29,7 @@ int filter(int *dst, int *src, int n) {
 // block level, use block level atomics based on shared memory
 // __global__ 
 // void filter_shared_k(int *dst, int *nres, const int* src, int n) {
-//   // 计数器声明为shared memory，去计数各个block范围内大于0的数量
+//   // 计数器声明为 shared memory，去计数各个block范围内大于0的数量
 //   __shared__ int l_n;
 //   int gtid = blockIdx.x * blockDim.x + threadIdx.x;
 //   int total_thread_num = blockDim.x * gridDim.x;
@@ -76,7 +76,7 @@ __device__ int atomicAggInc(int *ctr) {
   int change = __popc(active);//warp mask中为1的数量
   int lane_mask_lt;
   asm("mov.u32 %0, %%lanemask_lt;" : "=r"(lane_mask_lt));
-  unsigned int rank = __popc(active & lane_mask_lt); // 比当前线程id小且值为1的mask之和
+  unsigned int rank = __popc(active & lane_mask_lt); // 比当前线程id小且值为1的线程数，换句话说，当前active线程是当前warp中所有active线程的第几个（从0计数）
   int warp_res;
   if(rank == 0)//leader thread of every warp
     warp_res = atomicAdd(ctr, change);//compute global offset of warp

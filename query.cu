@@ -25,6 +25,7 @@ int main() {
         // 输出计算能力
         std::cout << "GPU " << i << ": " << deviceProp.name << std::endl;
         std::cout << "计算能力: sm_" << deviceProp.major<<"(major), sm_" << deviceProp.minor <<"(minor)"<< std::endl;
+        std::cout << "maxBlockSize: " << deviceProp.maxBlockSize[0] << std::endl;
         std::cout << "-----------------------------" << std::endl;
     }
 
