@@ -3,6 +3,7 @@
 #include <cuda_fp16.h>
 #include "cuda_runtime.h"
 #include <cmath>
+#include <cassert>
 
 #define WarpSize 32
 
@@ -11,7 +12,8 @@ bool CheckResult(float *out, float* groudtruth, int N){
       if(i == 0){
         printf("1st comparsion: %f and %f \n" , out[i], groudtruth[i] );
       }
-      if (out[i] != groudtruth[i]) {
+      // if (out[i] != groudtruth[i]) {
+      if (fabs((out[i] - groudtruth[i])/out[i]) > 1e-5) {
           return false;
       }
     }
@@ -129,7 +131,7 @@ __global__ void WarpSoftmax(const float* src, float* dst, const int rows, const 
         // 每个向量的起始偏移
         const int pack_offset = pack_id * pack_size;
         // 当前向量所在的起始列号
-        const int col = (pack_id * warp_width + lane_id) * pack_size;
+        const int col = lane_id * cols_per_thread + pack_offset; // (pack_id * warp_width + lane_id) * pack_size;
         if (col < cols) {
           // 根据起始列号，读取当前向量到row_buf寄存器
           load<pack_size>(src, row_buf + pack_offset, row + row_id, cols, col);
@@ -143,6 +145,7 @@ __global__ void WarpSoftmax(const float* src, float* dst, const int rows, const 
         }
       }
     }
+    // TODO: 一个warp加载数据应该是同时加载完的，所以此时一个warp内的所有线程应该都加载完并得到各自的最大值了
     // 声明rows_per_thread个寄存器保存当前线程计算的行的最大值
     float warp_max[rows_per_thread];
     // reduce各个线程计算的最大值，得出所有线程中的最大值，即一行的最大值
@@ -175,9 +178,10 @@ __global__ void WarpSoftmax(const float* src, float* dst, const int rows, const 
       }
       // 哪里来回哪里去，把最终结果写回显存
       for (int i = 0; i < num_packs; ++i) {
-        const int col = (i * warp_width + lane_id) * pack_size;
+        const int pack_offset = i * pack_size;
+        const int col = lane_id * cols_per_thread + pack_offset; // (i * warp_width + lane_id) * pack_size;
         if (col < cols) {
-          store<pack_size>(dst, row_buf + i * pack_size, row + row_id, cols, col);
+          store<pack_size>(dst, row_buf + pack_offset, row + row_id, cols, col);
         }
       }
     }
@@ -199,7 +203,7 @@ int main(){
     float *groudtruth = (float *)malloc(N * sizeof(float));
 
     for(int i = 0; i < N; i++){
-        src[i] = 1;
+        src[i] = i % 3;
     }
 
     softmaxCPU(src, groudtruth, 1000, 1024);
@@ -213,7 +217,7 @@ int main(){
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
     cudaEventRecord(start);
-    WarpSoftmax<1, 1024 / 32, 32, 1><<<Grid, Block>>>(d_src, d_dst, 1000, 1024);
+    WarpSoftmax<4, 1024 / 32, 32, 1><<<Grid, Block>>>(d_src, d_dst, 1000, 1024);
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&milliseconds, start, stop);
