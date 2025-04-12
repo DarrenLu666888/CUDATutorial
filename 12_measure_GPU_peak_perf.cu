@@ -69,9 +69,9 @@ int main() {
     
     int ThreadsPerSM = props.maxThreadsPerMultiProcessor;
     float FLOPS = (LOOP_TIMES * 4 * 2 * 1024) / (static_cast<float>(stopClock[0] - startClock[0]));
-    printf( "  GPU Max Clock rate: %0.2f GHz\n" , props.clockRate * 1e-6f);
-    printf(" SM counts is %d", props.multiProcessorCount);
-    printf("actual NVIDIA T4 GPU peak FLOPS is %f (TFLOPS) \n", FLOPS * props.clockRate * 1e-9 * props.multiProcessorCount);
+    printf( " GPU Max Clock rate: %0.2f GHz\n" , props.clockRate * 1e-6f);
+    printf(" SM counts is %d\n", props.multiProcessorCount);
+    printf(" actual NVIDIA A800 GPU peak FLOPS is %f (TFLOPS) \n", FLOPS * props.clockRate * 1e-9 * props.multiProcessorCount);
     free(x);
     free(y);
     free(startClock);

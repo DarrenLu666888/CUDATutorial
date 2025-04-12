@@ -1,8 +1,6 @@
-
 ## 5_reduce
 
 见 5_reduce/readme.md
-
 
 ## 6_warp_level_reduce
 
@@ -60,10 +58,22 @@ histogram + shared_mem + multi_value latency = 1.686624 ms
 
 ## 9_gelu
 
+这里有点问题，应该对分配的device地址进行内存对齐，而不是host地址！
+
+对齐和合并访问可以看《CUDA C编程权威指南》
+
+剩下的就是可以利用一些新的硬件特性，比如硬件层面上对half的支持：
+
+[4. Half Precision Intrinsics — CUDA Math API Reference Manual 12.8 documentation](https://docs.nvidia.com/cuda/cuda-math-api/cuda_math_api/group__CUDA__MATH__INTRINSIC__HALF.html#)
 
 
-## 10
+## 10_fused op
 
+这个给了算子融合的简单示例，并用了
+
+1. 结构体来将一连串重复的计算封装起来，便于kernel使用不同的fused模式
+2. shared mem来存储bias
+3. 向量化访存
 
 ## 11_softmax
 
@@ -84,3 +94,21 @@ Block(32, 8)
 所以分的块（一个线程处理的数据）是rows_per_thread*cols_per_thread个数据
 
 对于每个线程，每一行有cols_per_thread个数据，对这些数据可以采用向量化读取的方式
+
+
+## 12_measure_GPU_peak_perf
+
+评估GPU的算力，最重要的是要去除访存的时间，仅仅考虑计算的时间
+
+Q1: why use 4 fma instruction to get GPU peak performance?
+
+A1: we use >2(3or4) fma instruction to hide for loop comparsion and addition instruction overhead
+
+Q2: why use 4 dependant fma instruction to get GPU peak performance, can we use 4 independant ones?
+
+A2: yes, we can use 2/3/4 independant ones
+
+[NVIAIA A800显卡详细配置-GPU算力平台](http://www.suanlicloud.com/article/22.html)
+
+
+## 13_CUDA_stream

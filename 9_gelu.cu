@@ -129,7 +129,7 @@ int main() {
                                                                       
     constexpr auto kAlignment = alignof(AlignedVector<__half, 8>); 
     // Note: when you have ampere GPU, you can enable the 134-136 line to get performance improvement by half2 intrinsic.
-    if (n % 8 == 0 && is_aligned(x, kAlignment) && is_aligned(y, kAlignment)) {                                          
+    if (n % 8 == 0 && is_aligned(d_x, kAlignment) && is_aligned(d_y, kAlignment)) {                                          
       int thread = std::min<int>(512, deviceProp.maxThreadsPerBlock); 
       //int block = (n / 8 + thread - 1) / thread;
       //block = std::min<int>(block, deviceProp.maxGridSize[0]);                                  
