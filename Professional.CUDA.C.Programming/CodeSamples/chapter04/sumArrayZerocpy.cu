@@ -163,14 +163,14 @@ int main(int argc, char **argv)
     memset(gpuRef,  0, nBytes);
 
     // pass the pointer to device
-    CHECK(cudaHostGetDevicePointer((void **)&d_A, (void *)h_A, 0));
-    CHECK(cudaHostGetDevicePointer((void **)&d_B, (void *)h_B, 0));
+    // CHECK(cudaHostGetDevicePointer((void **)&d_A, (void *)h_A, 0));
+    // CHECK(cudaHostGetDevicePointer((void **)&d_B, (void *)h_B, 0));
 
     // add at host side for result checks
     sumArraysOnHost(h_A, h_B, hostRef, nElem);
 
     // execute kernel with zero copy memory
-    sumArraysZeroCopy<<<grid, block>>>(d_A, d_B, d_C, nElem);
+    sumArraysZeroCopy<<<grid, block>>>(h_A, h_B, d_C, nElem);
 
     // copy kernel result back to host side
     CHECK(cudaMemcpy(gpuRef, d_C, nBytes, cudaMemcpyDeviceToHost));
