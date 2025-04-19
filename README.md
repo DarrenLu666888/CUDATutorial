@@ -66,7 +66,6 @@ histogram + shared_mem + multi_value latency = 1.686624 ms
 
 [4. Half Precision Intrinsics — CUDA Math API Reference Manual 12.8 documentation](https://docs.nvidia.com/cuda/cuda-math-api/cuda_math_api/group__CUDA__MATH__INTRINSIC__HALF.html#)
 
-
 ## 10_fused op
 
 这个给了算子融合的简单示例，并用了
@@ -95,7 +94,6 @@ Block(32, 8)
 
 对于每个线程，每一行有cols_per_thread个数据，对这些数据可以采用向量化读取的方式
 
-
 ## 12_measure_GPU_peak_perf
 
 评估GPU的算力，最重要的是要去除访存的时间，仅仅考虑计算的时间
@@ -110,5 +108,6 @@ A2: yes, we can use 2/3/4 independant ones
 
 [NVIAIA A800显卡详细配置-GPU算力平台](http://www.suanlicloud.com/article/22.html)
 
-
 ## 13_CUDA_stream
+
+## 14_quantize
