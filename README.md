@@ -111,3 +111,17 @@ A2: yes, we can use 2/3/4 independant ones
 ## 13_CUDA_stream
 
 ## 14_quantize
+
+## 15_GEMV
+
+gemv操作还是不少的，比如大模型的生成/decode阶段当batch size为1时，计算QKV，MLP等时就是gemv操作，当然即使是矩阵乘，也是有若干个gemv实现的
+
+gemv1 kernel的实现采用了经典的float4加载，对于half仍采用float4加载，然后用half2解析float4中的每个元素为两个hlaf，然后将4个float（或8个hlaf相加），再对整个block（一行）采用blockReduce，得到点积结果
+
+gemv2 kernel  其实也就是用了float4加载，shared mem进行reduce，甚至只用了一个block（256线程），甚至gemv2还要跨行访问，不清楚为什么会快这么多？
+
+kernel1 ： gemv latency = 3.669216 ms
+
+kernel2 ： gemv latency = 0.372544 ms
+
+一个数量级的差异，究竟是为什么呢？！

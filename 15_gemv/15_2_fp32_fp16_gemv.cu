@@ -22,7 +22,7 @@ bool CheckResult(T *out, float *groudtruth, int M)
 {
     for (int i = 0; i < M; i++)
     {
-        printf("%d th comparsion: %f and %f \n", i, (float)out[i], groudtruth[i]);
+        // printf("%d th comparsion: %f and %f \n", i, (float)out[i], groudtruth[i]);
     }
     return true;
 }
@@ -33,7 +33,7 @@ bool CheckResult(T *out, float *groudtruth, int M)
     dtype *d_vec;                                                                                                           \
     dtype *d_mat;                                                                                                           \
     dtype *d_dst;                                                                                                           \
-    constexpr int N = 256;                                                                                                  \
+    constexpr int N = 2048;                                                                                                  \
     constexpr int M = 256;                                                                                                  \
     dtype *vec = (dtype *)malloc(N * sizeof(dtype));                                                                        \
     cudaMalloc((void **)&d_vec, N * sizeof(dtype));                                                                         \
@@ -76,7 +76,7 @@ bool CheckResult(T *out, float *groudtruth, int M)
 
 int main(int argc, char** argv)
 {
-    if (argv[1])
+    if (true)
     {
         GEMV_KERNEL(float);
     }
