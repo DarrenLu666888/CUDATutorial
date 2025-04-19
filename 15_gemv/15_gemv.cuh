@@ -58,7 +58,7 @@ __device__ __forceinline__ T blockReduce(T val){
     int warp_id = tid >> 5; //tid / 32;
     int lane_id = tid & 0x1f;//tid % 32;
     // 向上进1，以防分配的线程数量小于32导致warp nums为0
-    int warp_nums = (blockDim.x + 31) >> 5; // / 32;
+    int warp_nums = (blockDim.x + 31) >> 5;// / 32;
     static __shared__ float warpres[64];
     // block内每个warp reduce的结果，该结果保存在每个warp内的0号线程，所以L65用0号线程写入warp res
     val = warpReduce<ReductionOp, T>(val);
